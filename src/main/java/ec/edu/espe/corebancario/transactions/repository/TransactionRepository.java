@@ -12,7 +12,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface TransactionRepository extends MongoRepository<Transaction, String> {
     
-    List<Transaction> findTopSizeByIdentificationSenderOrderByCreationDateDesc(
-            @Param("size") Integer size,String identificacion);
+    List<Transaction> findTop2ByIdentificationSenderOrderByCreationDateDesc(String identificacion);
     
 }
