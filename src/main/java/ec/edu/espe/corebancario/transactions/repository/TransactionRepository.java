@@ -7,11 +7,11 @@ package ec.edu.espe.corebancario.transactions.repository;
 
 import ec.edu.espe.corebancario.transactions.model.Transaction;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.repository.query.Param;
 
 public interface TransactionRepository extends MongoRepository<Transaction, String> {
     
-    List<Transaction> findTop2ByIdentificationSenderOrderByCreationDateDesc(String identificacion);
-    
+    List<Transaction> findByIdentificationSenderOrderByCreationDateDesc(String identificacion, Pageable limit);
+      
 }
