@@ -12,37 +12,37 @@ import ec.edu.espe.corebancario.transactions.repository.TransactionRepository;
 import java.util.Date;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 
 public class TransactionService {
-    
+
     private final TransactionRepository transactionRepo;
 
     public TransactionService(TransactionRepository accountRepo) {
         this.transactionRepo = accountRepo;
     }
-    
+
     public void createTrasaction(Transaction transaction) throws InsertException {
         try {
-            log.info("Creando transaccion "+transaction.toString());
+            log.info("Creando transaccion " + transaction.toString());
             transaction.setCreationDate(new Date());
             this.transactionRepo.insert(transaction);
         } catch (Exception e) {
             throw new InsertException("Transaction", "Ocurrio un error al crear la transaccion: " + transaction.toString(), e);
         }
     }
-    
-    public List<Transaction> listXLastTransactions(Integer X, String identificacion) throws DocumentNotFoundException{
+
+    public List<Transaction> listXLastTransactions(String identificacion, Integer X) throws DocumentNotFoundException {
         try {
-            log.info("Listando "+X+" transeferencias de: "+identificacion);
-            List<Transaction> transactions = this.transactionRepo.findTop2ByIdentificationSenderOrderByCreationDateDesc(identificacion);
-            log.info("\n"+transactions.size()+" "+transactions.toString());
+            log.info("Listando " + X + " transferencias de: " + identificacion);
+            List<Transaction> transactions = this.transactionRepo.findByIdentificationSenderOrderByCreationDateDesc(identificacion, PageRequest.of(0, X));
             return transactions;
         } catch (Exception e) {
-            throw new DocumentNotFoundException("Error al listar las "+X+" transacciones");
-        }        
+            throw new DocumentNotFoundException("Error al listar las " + X + " transacciones");
+        }
     }
 }
