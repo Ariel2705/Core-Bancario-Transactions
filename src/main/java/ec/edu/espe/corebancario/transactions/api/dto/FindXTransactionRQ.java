@@ -11,6 +11,6 @@ import lombok.Data;
 public class FindXTransactionRQ {
     
     private String identificationSender;
-    private Integer size;
+    private Integer limit;
     
 }

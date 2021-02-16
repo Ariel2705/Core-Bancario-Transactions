@@ -44,7 +44,7 @@ public class TransactionController {
     @GetMapping("/listXLastTransactions")
     public ResponseEntity listXLastTransactions(@RequestBody FindXTransactionRQ transactionRQ) {
         try {
-            return ResponseEntity.ok(this.service.listXLastTransactions(transactionRQ.getSize(),transactionRQ.getIdentificationSender()));
+            return ResponseEntity.ok(this.service.listXLastTransactions(transactionRQ.getIdentificationSender(), transactionRQ.getLimit()));
         } catch (DocumentNotFoundException ex) {
             return ResponseEntity.notFound().build();
         }
