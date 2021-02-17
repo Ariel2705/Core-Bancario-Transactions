@@ -40,7 +40,11 @@ public class TransactionService {
         try {
             log.info("Listando " + X + " transferencias de: " + identificacion);
             List<Transaction> transactions = this.transactionRepo.findByIdentificationSenderOrderByCreationDateDesc(identificacion, PageRequest.of(0, X));
-            return transactions;
+            if (!transactions.isEmpty()) {
+                return transactions;
+            } else {
+                throw new DocumentNotFoundException("Error al listar transacciones");
+            }
         } catch (Exception e) {
             throw new DocumentNotFoundException("Error al listar las " + X + " transacciones");
         }
