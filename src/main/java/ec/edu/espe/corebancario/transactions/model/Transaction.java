@@ -18,13 +18,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Transaction {
     @Id
     private String id;
-    private String identificationSender;
-    private String sender;
-    private String identificationReceiver;
-    private String receiver;
+    private String identification;    
+    private String account;
     private Date creationDate;
     private String type;
     private String description;
     private BigDecimal mont;
-    private BigDecimal balanceSender;
+    private BigDecimal balanceAccount;
+    
 }

@@ -39,7 +39,21 @@ public class TransactionService {
     public List<Transaction> listXLastTransactions(String identificacion, Integer X) throws DocumentNotFoundException {
         try {
             log.info("Listando " + X + " transferencias de: " + identificacion);
-            List<Transaction> transactions = this.transactionRepo.findByIdentificationSenderOrderByCreationDateDesc(identificacion, PageRequest.of(0, X));
+            List<Transaction> transactions = this.transactionRepo.findByIdentificationOrderByCreationDateDesc(identificacion, PageRequest.of(0, X));
+            if (!transactions.isEmpty()) {
+                return transactions;
+            } else {
+                throw new DocumentNotFoundException("Error al listar transacciones");
+            }
+        } catch (Exception e) {
+            throw new DocumentNotFoundException("Error al listar las " + X + " transacciones");
+        }
+    }
+    
+    public List<Transaction> listXLastTransactionsByType(String type, String identificacion, Integer X) throws DocumentNotFoundException {
+        try {
+            log.info("Listando " + X + " transferencias de: " + identificacion);
+            List<Transaction> transactions = this.transactionRepo.findByTypeAndIdentificationOrderByCreationDateDesc(type,identificacion, PageRequest.of(0, X));
             if (!transactions.isEmpty()) {
                 return transactions;
             } else {
