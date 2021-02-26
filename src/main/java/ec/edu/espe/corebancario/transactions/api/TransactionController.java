@@ -10,6 +10,9 @@ import ec.edu.espe.corebancario.transactions.service.TransactionService;
 import ec.edu.espe.corebancario.transactions.model.Transaction;
 import ec.edu.espe.corebancario.transactions.api.dto.FindXTransactionRQ;
 import ec.edu.espe.corebancario.transactions.exception.DocumentNotFoundException;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,8 +34,45 @@ public class TransactionController {
 
     public TransactionController(TransactionService service) {
         this.service = service;
-    }    
+    }   
     
+    @ApiOperation(value = "Lista x transacciones", notes = "Se lista las x últimas transaciones del cliente.")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Correcto listado de transacciones."),
+        @ApiResponse(code = 404, message = "Transacciones no encontradas.")
+    })
+    @GetMapping(path = "/listXLastTransactions")
+    public ResponseEntity listXLastTransactions(@RequestParam String identification,@RequestParam(defaultValue = "1", required=false) Integer limit) {
+        try {
+            return ResponseEntity.ok(this.service.listXLastTransactions(identification, limit));
+        } catch (DocumentNotFoundException ex) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    @ApiOperation(value = "Lista x transacciones por tipo.", notes = "Se lista las x últimas transaciones del cliente por tipo.")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Correcto listado de transacciones."),
+        @ApiResponse(code = 404, message = "Transacciones no encontradas.")
+    })
+    @GetMapping(path = "/listXLastTransactionsByType")
+    public ResponseEntity listXLastTransactionsByType(
+            @RequestParam(defaultValue = "Retiro") String type, 
+            @RequestParam String identification,
+            @RequestParam(defaultValue = "1", required=false) Integer limit) 
+    {
+        try {
+            return ResponseEntity.ok(this.service.listXLastTransactionsByType(identification, type, limit));
+        } catch (DocumentNotFoundException ex) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+    @ApiOperation(value = "Crea una transaccion", notes = "Crear una transacción. Las transacciones son: retiro, depósito y pago de servicios")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Transacción creada."),
+        @ApiResponse(code = 400, message = "Error al crear la transacción.")
+    })
     @PostMapping("/create")
     public ResponseEntity create(@RequestBody Transaction transaction) {
         try {
@@ -42,15 +82,5 @@ public class TransactionController {
             return ResponseEntity.badRequest().build();
         }
     }
-    
-    @GetMapping(path = "/listXLastTransactions")
-    public ResponseEntity listXLastTransactions(@RequestParam String identification,@RequestParam(defaultValue="1", required=false) Integer limit) {
-        try {
-            return ResponseEntity.ok(this.service.listXLastTransactions(identification, limit));
-        } catch (DocumentNotFoundException ex) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-    
     
 }

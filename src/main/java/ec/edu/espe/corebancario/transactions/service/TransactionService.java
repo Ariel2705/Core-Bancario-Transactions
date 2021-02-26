@@ -50,10 +50,10 @@ public class TransactionService {
         }
     }
     
-    public List<Transaction> listXLastTransactionsByType(String type, String identificacion, Integer X) throws DocumentNotFoundException {
+    public List<Transaction> listXLastTransactionsByType(String identificacion, String type, Integer X) throws DocumentNotFoundException {
         try {
-            log.info("Listando " + X + " transferencias de: " + identificacion);
-            List<Transaction> transactions = this.transactionRepo.findByTypeAndIdentificationOrderByCreationDateDesc(type,identificacion, PageRequest.of(0, X));
+            log.info("Listando " + X + " transferencias de: " + identificacion + " de tipo " + type);
+            List<Transaction> transactions = this.transactionRepo.findByIdentificationAndTypeOrderByCreationDateDesc(identificacion, type, PageRequest.of(0, X));
             if (!transactions.isEmpty()) {
                 return transactions;
             } else {
