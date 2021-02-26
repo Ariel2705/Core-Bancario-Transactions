@@ -13,9 +13,11 @@ import ec.edu.espe.corebancario.transactions.exception.DocumentNotFoundException
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -41,12 +43,14 @@ public class TransactionController {
         }
     }
     
-    @GetMapping("/listXLastTransactions")
-    public ResponseEntity listXLastTransactions(@RequestBody FindXTransactionRQ transactionRQ) {
+    @GetMapping(path = "/listXLastTransactions")
+    public ResponseEntity listXLastTransactions(@RequestParam String identification,@RequestParam(defaultValue="1", required=false) Integer limit) {
         try {
-            return ResponseEntity.ok(this.service.listXLastTransactions(transactionRQ.getIdentificationSender(), transactionRQ.getLimit()));
+            return ResponseEntity.ok(this.service.listXLastTransactions(identification, limit));
         } catch (DocumentNotFoundException ex) {
             return ResponseEntity.notFound().build();
         }
     }
+    
+    
 }
