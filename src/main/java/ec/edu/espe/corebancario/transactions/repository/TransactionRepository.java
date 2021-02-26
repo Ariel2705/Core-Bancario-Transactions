@@ -13,6 +13,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface TransactionRepository extends MongoRepository<Transaction, String> {
     
     List<Transaction> findByIdentificationOrderByCreationDateDesc(String identification, Pageable limit);
-    List<Transaction> findByTypeAndIdentificationOrderByCreationDateDesc(String type, String identification, Pageable limit);
+    List<Transaction> findByIdentificationAndTypeOrderByCreationDateDesc(String identification, String type, Pageable limit);
        
 }
