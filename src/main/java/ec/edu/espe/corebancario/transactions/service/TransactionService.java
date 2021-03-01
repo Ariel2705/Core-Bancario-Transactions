@@ -43,16 +43,15 @@ public class TransactionService {
                     BigDecimal balance = request.getBody().getObject().getBigDecimal("balance");
                     if (TypeTransactionEnum.DEPOSITO.getDescription().equals(transaction.getType())) {
                         balance = balance.add(transaction.getMont());
-                        transaction.setBalanceAccount(balance);
                     } else {
                         if (0 <= balance.compareTo(transaction.getMont())) {
-                            balance = balance.subtract(transaction.getMont());
-                            transaction.setBalanceAccount(balance);
+                            balance = balance.subtract(transaction.getMont());                            
                         } else {
                             log.error("Transaccion de retiro con saldo insuficiente " + transaction.getAccount());
                             throw new InsertException("Transaction", "Cuenta no existente");
                         }
                     }
+                    transaction.setBalanceAccount(balance);
                 } else {
                     log.error("Intento de creacion de transaccion con cuenta no existente o inactiva " + transaction.getAccount());
                     throw new InsertException("Transaction", "Cuenta no existente");
