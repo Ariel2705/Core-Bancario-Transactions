@@ -36,6 +36,7 @@ public class TransactionService {
     public void createTrasaction(Transaction transaction) throws InsertException {
         try {
             if (TypeTransactionEnum.DEPOSITO.getDescription().equals(transaction.getType()) || TypeTransactionEnum.RETIRO.getDescription().equals(transaction.getType())) {
+                activateAccount(transaction.getAccount(), transaction.getType());
                 HttpResponse<JsonNode> request = Unirest.get("http://localhost:8082/api/corebancario/account/findAccountByNumber/{number}")
                         .routeParam("number", transaction.getAccount()).asJson();
 
@@ -60,6 +61,7 @@ public class TransactionService {
                 object.put("number", transaction.getAccount());
                 object.put("balance", transaction.getBalanceAccount());
                 HttpResponse<JsonNode> put = Unirest.put("http://localhost:8082/api/corebancario/account/updateBalance").header("Content-Type", "application/json").body(object).asJson();
+
             }
             transaction.setCreationDate(new Date());
             log.info("Transaccion realizada con exito " + transaction.toString());
@@ -121,6 +123,22 @@ public class TransactionService {
             }
         } catch (Exception e) {
             throw new DocumentNotFoundException("Error al listar las " + X + " transacciones");
+        }
+    }
+
+    private void activateAccount(String account, String type) throws DocumentNotFoundException {
+        try {
+            HttpResponse<JsonNode> request = Unirest.get("http://localhost:8082/api/corebancario/account/findAccountByNumber/{number}")
+                    .routeParam("number", account).asJson();
+
+            if (200 == request.getStatus() && TypeTransactionEnum.DEPOSITO.getDescription().equals(type) && StateAccountEnum.INACTIVO.getEstado().equals(request.getBody().getObject().getString("status")) && (new BigDecimal("0").equals(request.getBody().getObject().getBigDecimal("balance")))) {
+                JSONObject object = new JSONObject();
+                object.put("number", request.getBody().getObject().getString("number"));
+                object.put("state", StateAccountEnum.ACTIVO.getEstado());
+                HttpResponse<JsonNode> put = Unirest.put("http://localhost:8082/api/corebancario/account/updateStatus").header("Content-Type", "application/json").body(object).asJson();
+            }
+        } catch (Exception e) {
+            throw new DocumentNotFoundException("Error al activar cuenta "+e);
         }
     }
 }
