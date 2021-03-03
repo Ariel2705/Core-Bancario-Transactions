@@ -45,7 +45,7 @@ public class TransactionService {
                         balance = balance.add(transaction.getMont());
                     } else {
                         if (0 <= balance.compareTo(transaction.getMont())) {
-                            balance = balance.subtract(transaction.getMont());                            
+                            balance = balance.subtract(transaction.getMont());
                         } else {
                             log.error("Transaccion de retiro con saldo insuficiente " + transaction.getAccount());
                             throw new InsertException("Transaction", "Cuenta no existente");
@@ -54,7 +54,7 @@ public class TransactionService {
                     transaction.setBalanceAccount(balance);
                 } else {
                     log.error("Intento de creacion de transaccion con cuenta no existente o inactiva " + transaction.getAccount());
-                    throw new InsertException("Transaction", "Cuenta no existente");
+                    throw new InsertException("Transaction", "Cuenta no existente o inactiva");
                 }
                 JSONObject object = new JSONObject();
                 object.put("number", transaction.getAccount());
@@ -66,6 +66,33 @@ public class TransactionService {
             this.transactionRepo.insert(transaction);
         } catch (Exception e) {
             throw new InsertException("Transaction", "Ocurrio un error al crear la transaccion: " + transaction.toString(), e);
+        }
+    }
+
+    public void cardPayment(Transaction transaction) throws InsertException {
+        try {
+            HttpResponse<JsonNode> request = Unirest.get("http://localhost:8082/api/corebancario/creditCard/findCreditCard/{number}")
+                    .routeParam("number", transaction.getAccount()).asJson();
+            if (200 == request.getStatus() && StateAccountEnum.ACTIVO.getEstado().equals(request.getBody().getObject().getString("status"))) {
+                Integer account = request.getBody().getObject().getInt("codAccount");
+                HttpResponse<JsonNode> requestAccount = Unirest.get("http://localhost:8082/api/corebancario/account/findAccountById/{id}")
+                        .routeParam("id", account.toString()).asJson();
+                BigDecimal balance = requestAccount.getBody().getObject().getBigDecimal("balance");
+                balance = balance.add(transaction.getMont());
+                transaction.setBalanceAccount(balance);
+                JSONObject object = new JSONObject();
+                object.put("number", requestAccount.getBody().getObject().getString("number"));
+                object.put("balance", transaction.getBalanceAccount());
+                HttpResponse<JsonNode> put = Unirest.put("http://localhost:8082/api/corebancario/account/updateBalance").header("Content-Type", "application/json").body(object).asJson();
+            } else {
+                log.error("Intento de pago de tarjeta de credito no existente o inactiva " + transaction.getAccount());
+                throw new InsertException("Transaction", "Tarjeta de credito no existente o inactiva");
+            }
+            transaction.setCreationDate(new Date());
+            log.info("Transaccion realizada con exito " + transaction.toString());
+            this.transactionRepo.insert(transaction);
+        } catch (Exception e) {
+            throw new InsertException("Transaction", "Ocurrio un error al pagar la tarjeta de credito: " + transaction.toString(), e);
         }
     }
 
