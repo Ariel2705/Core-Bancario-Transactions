@@ -62,6 +62,21 @@ public class TransactionService {
                 object.put("balance", transaction.getBalanceAccount());
                 HttpResponse<JsonNode> put = Unirest.put("http://localhost:8082/api/corebancario/account/updateBalance").header("Content-Type", "application/json").body(object).asJson();
 
+            }else{
+                if(TypeTransactionEnum.PAGO.getDescription().equals(transaction.getType())){
+                String accountPay = "270000000001";
+                    HttpResponse<JsonNode> request = Unirest.get("http://localhost:8082/api/corebancario/account/findAccountByNumber/{number}")
+                        .routeParam("number", accountPay).asJson();
+                BigDecimal balance = request.getBody().getObject().getBigDecimal("balance");
+                balance = balance.add(transaction.getMont());
+                transaction.setBalanceAccount(balance);
+                JSONObject object = new JSONObject();
+                object.put("number", accountPay);
+                object.put("balance", balance);
+                HttpResponse<JsonNode> put = Unirest.put("http://localhost:8082/api/corebancario/account/updateBalance").header("Content-Type", "application/json").body(object).asJson();
+                }else{
+                    throw new InsertException("Transaction", "Intento de transaccion de tipo no existente " + transaction.toString());
+                }                
             }
             transaction.setCreationDate(new Date());
             log.info("Transaccion realizada con exito " + transaction.toString());
