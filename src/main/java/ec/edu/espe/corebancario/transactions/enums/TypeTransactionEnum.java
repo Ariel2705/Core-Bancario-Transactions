@@ -8,7 +8,8 @@ package ec.edu.espe.corebancario.transactions.enums;
 public enum TypeTransactionEnum {
     
     DEPOSITO("Dep", "Deposito"),
-    RETIRO("Ret", "Retiro");
+    RETIRO("Ret", "Retiro"),
+    PAGO("Pag", "Pago");
     
     private final String type;
     private final String description;
