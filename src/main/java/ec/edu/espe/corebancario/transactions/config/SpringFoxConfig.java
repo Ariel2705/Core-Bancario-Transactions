@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ec.edu.espe.corebancario.transactions.config;
 
 import org.springframework.context.annotation.Bean;
@@ -18,16 +13,16 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
 @Configuration
 @EnableSwagger2WebMvc
 @Import({SpringDataRestConfiguration.class})
-        
+
 public class SpringFoxConfig {
-    
+
     @Bean
-    public Docket api() { 
-        return new Docket(DocumentationType.SWAGGER_2)  
-          .select()                                  
-          .apis(RequestHandlerSelectors.basePackage("ec.edu.espe.corebancario.transactions.api"))              
-          .paths(PathSelectors.any())                          
-          .build();                                           
+    public Docket api() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("ec.edu.espe.corebancario.transactions.api"))
+                .paths(PathSelectors.any())
+                .build();
     }
-    
+
 }
