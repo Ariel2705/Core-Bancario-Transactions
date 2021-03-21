@@ -1,17 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ec.edu.espe.corebancario.transactions.service;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
-import ec.edu.espe.corebancario.transactions.enums.TypeTransactionEnum;
-import ec.edu.espe.corebancario.transactions.exception.InsertException;
 import ec.edu.espe.corebancario.transactions.enums.StateAccountEnum;
+import ec.edu.espe.corebancario.transactions.enums.TypeTransactionEnum;
 import ec.edu.espe.corebancario.transactions.exception.DocumentNotFoundException;
+import ec.edu.espe.corebancario.transactions.exception.InsertException;
 import ec.edu.espe.corebancario.transactions.model.Transaction;
 import ec.edu.espe.corebancario.transactions.repository.TransactionRepository;
 import java.math.BigDecimal;
@@ -24,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-
 public class TransactionService {
 
     private final TransactionRepository transactionRepo;
@@ -35,12 +29,15 @@ public class TransactionService {
 
     public void createTrasaction(Transaction transaction) throws InsertException {
         try {
-            if (TypeTransactionEnum.DEPOSITO.getDescription().equals(transaction.getType()) || TypeTransactionEnum.RETIRO.getDescription().equals(transaction.getType())) {
+            if (TypeTransactionEnum.DEPOSITO.getDescription().equals(transaction.getType()) 
+                    || TypeTransactionEnum.RETIRO.getDescription().equals(transaction.getType())) {
                 activateAccount(transaction.getAccount(), transaction.getType());
                 HttpResponse<JsonNode> request = Unirest.get("http://localhost:8082/api/corebancario/account/findAccountByNumber/{number}")
                         .routeParam("number", transaction.getAccount()).asJson();
 
-                if (200 == request.getStatus() && StateAccountEnum.ACTIVO.getEstado().equals(request.getBody().getObject().getString("status"))) {
+                if (200 == request.getStatus() 
+                        && StateAccountEnum.ACTIVO.getEstado().equals(
+                                request.getBody().getObject().getString("status"))) {
                     BigDecimal balance = request.getBody().getObject().getBigDecimal("balance");
                     if (TypeTransactionEnum.DEPOSITO.getDescription().equals(transaction.getType())) {
                         balance = balance.add(transaction.getMont());
@@ -54,7 +51,8 @@ public class TransactionService {
                     }
                     transaction.setBalanceAccount(balance);
                 } else {
-                    log.error("Intento de creacion de transaccion con cuenta no existente o inactiva " + transaction.getAccount());
+                    log.error("Intento de creacion de transaccion con cuenta no existente o inactiva "
+                            + transaction.getAccount());
                     throw new InsertException("Transaction", "Cuenta no existente o inactiva");
                 }
                 JSONObject object = new JSONObject();
@@ -62,27 +60,29 @@ public class TransactionService {
                 object.put("balance", transaction.getBalanceAccount());
                 HttpResponse<JsonNode> put = Unirest.put("http://localhost:8082/api/corebancario/account/updateBalance").header("Content-Type", "application/json").body(object).asJson();
 
-            }else{
-                if(TypeTransactionEnum.PAGO.getDescription().equals(transaction.getType())){
-                String accountPay = "270000000001";
+            } else {
+                if (TypeTransactionEnum.PAGO.getDescription().equals(transaction.getType())) {
+                    String accountPay = "270000000001";
                     HttpResponse<JsonNode> request = Unirest.get("http://localhost:8082/api/corebancario/account/findAccountByNumber/{number}")
-                        .routeParam("number", accountPay).asJson();
-                BigDecimal balance = request.getBody().getObject().getBigDecimal("balance");
-                balance = balance.add(transaction.getMont());
-                transaction.setBalanceAccount(balance);
-                JSONObject object = new JSONObject();
-                object.put("number", accountPay);
-                object.put("balance", balance);
-                HttpResponse<JsonNode> put = Unirest.put("http://localhost:8082/api/corebancario/account/updateBalance").header("Content-Type", "application/json").body(object).asJson();
-                }else{
-                    throw new InsertException("Transaction", "Intento de transaccion de tipo no existente " + transaction.toString());
-                }                
+                            .routeParam("number", accountPay).asJson();
+                    BigDecimal balance = request.getBody().getObject().getBigDecimal("balance");
+                    balance = balance.add(transaction.getMont());
+                    transaction.setBalanceAccount(balance);
+                    JSONObject object = new JSONObject();
+                    object.put("number", accountPay);
+                    object.put("balance", balance);
+                    HttpResponse<JsonNode> put = Unirest.put("http://localhost:8082/api/corebancario/account/updateBalance").header("Content-Type", "application/json").body(object).asJson();
+                } else {
+                    throw new InsertException("Transaction", "Intento de transaccion de tipo no existente " 
+                            + transaction.toString());
+                }
             }
             transaction.setCreationDate(new Date());
             log.info("Transaccion realizada con exito " + transaction.toString());
             this.transactionRepo.insert(transaction);
         } catch (Exception e) {
-            throw new InsertException("Transaction", "Ocurrio un error al crear la transaccion: " + transaction.toString(), e);
+            throw new InsertException("Transaction", "Ocurrio un error al crear la transaccion: " 
+                    + transaction.toString(), e);
         }
     }
 
@@ -90,7 +90,8 @@ public class TransactionService {
         try {
             HttpResponse<JsonNode> request = Unirest.get("http://localhost:8082/api/corebancario/creditCard/findCreditCard/{number}")
                     .routeParam("number", transaction.getAccount()).asJson();
-            if (200 == request.getStatus() && StateAccountEnum.ACTIVO.getEstado().equals(request.getBody().getObject().getString("status"))) {
+            if (200 == request.getStatus() 
+                    && StateAccountEnum.ACTIVO.getEstado().equals(request.getBody().getObject().getString("status"))) {
                 Integer account = request.getBody().getObject().getInt("codAccount");
                 HttpResponse<JsonNode> requestAccount = Unirest.get("http://localhost:8082/api/corebancario/account/findAccountById/{id}")
                         .routeParam("id", account.toString()).asJson();
@@ -109,35 +110,43 @@ public class TransactionService {
             log.info("Transaccion realizada con exito " + transaction.toString());
             this.transactionRepo.insert(transaction);
         } catch (Exception e) {
-            throw new InsertException("Transaction", "Ocurrio un error al pagar la tarjeta de credito: " + transaction.toString(), e);
+            throw new InsertException("Transaction", "Ocurrio un error al pagar la tarjeta de credito: " 
+                    + transaction.toString(), e);
         }
     }
 
-    public List<Transaction> listXLastTransactions(String identificacion, Integer X) throws DocumentNotFoundException {
+    public List<Transaction> listLastTransactions(String account, Integer amount) throws DocumentNotFoundException {
         try {
-            log.info("Listando " + X + " transferencias de: " + identificacion);
-            List<Transaction> transactions = this.transactionRepo.findByIdentificationOrderByCreationDateDesc(identificacion, PageRequest.of(0, X));
+            log.info("Listando " + amount + " transferencias de: " + account);
+            List<Transaction> transactions = 
+                    this.transactionRepo.findByAccountOrderByCreationDateDesc(account,
+                            PageRequest.of(0, amount));
             if (!transactions.isEmpty()) {
                 return transactions;
             } else {
                 throw new DocumentNotFoundException("Error al listar transacciones");
             }
         } catch (Exception e) {
-            throw new DocumentNotFoundException("Error al listar las " + X + " transacciones");
+            throw new DocumentNotFoundException("Error al listar las " + amount + " transacciones");
         }
     }
 
-    public List<Transaction> listXLastTransactionsByType(String identificacion, String type, Integer X) throws DocumentNotFoundException {
+    public List<Transaction> listLastTransactionsByType(String account, 
+            String type, 
+            Integer amount) throws DocumentNotFoundException {
         try {
-            log.info("Listando " + X + " transferencias de: " + identificacion + " de tipo " + type);
-            List<Transaction> transactions = this.transactionRepo.findByIdentificationAndTypeOrderByCreationDateDesc(identificacion, type, PageRequest.of(0, X));
+            log.info("Listando " + amount + " transferencias de: " + account + " de tipo " + type);
+            List<Transaction> transactions = 
+                    this.transactionRepo.findByAccountAndTypeOrderByCreationDateDesc(account,
+                            type,
+                            PageRequest.of(0, amount));
             if (!transactions.isEmpty()) {
                 return transactions;
             } else {
                 throw new DocumentNotFoundException("Error al listar transacciones");
             }
         } catch (Exception e) {
-            throw new DocumentNotFoundException("Error al listar las " + X + " transacciones");
+            throw new DocumentNotFoundException("Error al listar las " + amount + " transacciones");
         }
     }
 
@@ -146,14 +155,17 @@ public class TransactionService {
             HttpResponse<JsonNode> request = Unirest.get("http://localhost:8082/api/corebancario/account/findAccountByNumber/{number}")
                     .routeParam("number", account).asJson();
 
-            if (200 == request.getStatus() && TypeTransactionEnum.DEPOSITO.getDescription().equals(type) && StateAccountEnum.INACTIVO.getEstado().equals(request.getBody().getObject().getString("status")) && (new BigDecimal("0").equals(request.getBody().getObject().getBigDecimal("balance")))) {
+            if (200 == request.getStatus() 
+                    && TypeTransactionEnum.DEPOSITO.getDescription().equals(type) 
+                    && StateAccountEnum.INACTIVO.getEstado().equals(request.getBody().getObject().getString("status")) 
+                    && (new BigDecimal("0").equals(request.getBody().getObject().getBigDecimal("balance")))) {
                 JSONObject object = new JSONObject();
                 object.put("number", request.getBody().getObject().getString("number"));
                 object.put("state", StateAccountEnum.ACTIVO.getEstado());
                 HttpResponse<JsonNode> put = Unirest.put("http://localhost:8082/api/corebancario/account/updateStatus").header("Content-Type", "application/json").body(object).asJson();
             }
         } catch (Exception e) {
-            throw new DocumentNotFoundException("Error al activar cuenta "+e);
+            throw new DocumentNotFoundException("Error al activar cuenta " + e);
         }
     }
 }
