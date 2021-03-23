@@ -15,6 +15,9 @@
     <description>Banco Banquito module transactions</description>
     <properties>
         <java.version>11</java.version>
+        <sonar.projectKey>Ariel2705_Core-Bancario-Transactions</sonar.projectKey>
+        <sonar.organization>ariel2705</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
     <dependencies>
         <dependency>
