@@ -33,7 +33,7 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
     public MongoClient mongoClient() {
         log.info("Valores de propiedades: {}-{}", this.appValues.getMongoHost(), this.appValues.getMongoDb());
         return MongoClients.create("mongodb://" + this.appValues.getUsername() + ":" + this.appValues.getPwd()
-                 + "@" + this.appValues.getMongoHost() + "/" + this.appValues.getMongoDb());
+                 + "@" + this.appValues.getMongoHost() + "/" + this.appValues.getMongoDb() + "?authSource=admin");
     }
 
     @Bean
