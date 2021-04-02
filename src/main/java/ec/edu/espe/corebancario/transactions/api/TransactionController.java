@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +30,7 @@ public class TransactionController {
         this.service = service;
     }
 
+    @PreAuthorize("hasRole('admin') OR hasRole('ventanilla')")
     @ApiOperation(value = "Lista x transacciones",
             notes = "Se lista las x últimas transaciones del cliente.")
     @ApiResponses(value = {
@@ -46,6 +48,7 @@ public class TransactionController {
         }
     }
 
+    @PreAuthorize("hasRole('admin') OR hasRole('ventanilla')")
     @ApiOperation(value = "Lista x transacciones por tipo.", 
             notes = "Se lista las x últimas transaciones del cliente por tipo.")
     @ApiResponses(value = {
@@ -64,6 +67,7 @@ public class TransactionController {
         }
     }
 
+    @PreAuthorize("hasRole('admin') OR hasRole('ventanilla')")
     @ApiOperation(value = "Crea una transaccion", 
             notes = "Crear una transacción. Las transacciones son: retiro, depósito y pago de servicios")
     @ApiResponses(value = {
@@ -80,6 +84,7 @@ public class TransactionController {
         }
     }
 
+    @PreAuthorize("hasRole('admin') OR hasRole('ventanilla')")
     @ApiOperation(value = "Crea una transaccion en relacion al pago de tarjetas de credito", 
             notes = "Crear una transacción. Pago de estado de cuentas de las tarjetas de credito.")
     @ApiResponses(value = {
