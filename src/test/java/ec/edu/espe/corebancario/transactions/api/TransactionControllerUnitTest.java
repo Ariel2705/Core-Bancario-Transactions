@@ -14,14 +14,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 
 @ExtendWith(MockitoExtension.class)
 public class TransactionControllerUnitTest {
@@ -55,9 +54,8 @@ public class TransactionControllerUnitTest {
     
     @Test
     public void givenNullAndLimitThrowDocumentNotFoundException() {
-        String numberAccount = null;
-        Integer limit = 1;
-        TransactionController controller = new TransactionController(service);
+        String numberAccount = "370000000001";
+        Integer limit = 3;
         try {
             lenient().when(service.listLastTransactions(numberAccount,limit))
                     .thenThrow(DocumentNotFoundException.class);

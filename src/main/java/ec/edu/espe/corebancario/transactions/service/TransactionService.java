@@ -28,7 +28,7 @@ public class TransactionService {
 
     public TransactionService(TransactionRepository accountRepo) {
         this.transactionRepo = accountRepo;
-        this.authorizationRq =  new Authorization("haaltamirano", "espe123.");
+        this.authorizationRq = new Authorization("haaltamirano", "espe123.");
     }
 
     public void createTrasaction(Transaction transaction) throws InsertException {
@@ -36,6 +36,7 @@ public class TransactionService {
             if (TypeTransactionEnum.DEPOSITO.getDescription().equals(transaction.getType())
                     || TypeTransactionEnum.RETIRO.getDescription().equals(transaction.getType())) {
                 activateAccount(transaction.getAccount(), transaction.getType());
+
                 HttpResponse<JsonNode> request = Unirest.get(DomainConstant.DOMAINACCOUNT
                         + "/findAccountByNumber/{number}")
                         .header("Authorization", authorizationRq.tokenAuthorizate())
@@ -120,6 +121,7 @@ public class TransactionService {
                         .header("Content-Type", "Application/JSON")
                         .header("Authorization", authorizationRq.tokenAuthorizate())
                         .body(object).asJson();
+                log.info("PASOOOOOOOOOOOOOOO2" + transaction.toString());
             } else {
                 log.error("Intento de pago de tarjeta de credito no existente o inactiva " + transaction.getAccount());
                 throw new InsertException("Transaction", "Tarjeta de credito no existente o inactiva");
