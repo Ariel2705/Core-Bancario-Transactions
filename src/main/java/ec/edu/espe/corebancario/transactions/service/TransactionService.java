@@ -65,6 +65,7 @@ public class TransactionService {
                 object.put("number", transaction.getAccount());
                 object.put("balance", transaction.getBalanceAccount());
                 Unirest.put(DomainConstant.DOMAINACCOUNT + "/updateBalance")
+                        .header("Content-Type", "Application/JSON")
                         .header("Authorization", authorizationRq.tokenAuthorizate()).body(object).asJson();
 
             } else {
@@ -81,6 +82,7 @@ public class TransactionService {
                     object.put("number", accountPay);
                     object.put("balance", balance);
                     Unirest.put(DomainConstant.DOMAINACCOUNT + "/updateBalance")
+                            .header("Content-Type", "Application/JSON")
                             .header("Authorization", authorizationRq.tokenAuthorizate()).body(object).asJson();
                 } else {
                     throw new InsertException("Transaction", "Intento de transaccion de tipo no existente "
@@ -115,6 +117,7 @@ public class TransactionService {
                 object.put("number", requestAccount.getBody().getObject().getString("number"));
                 object.put("balance", transaction.getBalanceAccount());
                 Unirest.put(DomainConstant.DOMAINACCOUNT + "/updateBalance")
+                        .header("Content-Type", "Application/JSON")
                         .header("Authorization", authorizationRq.tokenAuthorizate())
                         .body(object).asJson();
             } else {
@@ -179,6 +182,7 @@ public class TransactionService {
                 object.put("number", request.getBody().getObject().getString("number"));
                 object.put("state", StateAccountEnum.ACTIVO.getEstado());
                 Unirest.put(DomainConstant.DOMAINACCOUNT + "/updateStatus")
+                        .header("Content-Type", "Application/JSON")
                         .header("Authorization", authorizationRq.tokenAuthorizate())
                         .body(object).asJson();
             }
