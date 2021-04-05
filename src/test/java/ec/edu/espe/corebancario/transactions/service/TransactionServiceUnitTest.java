@@ -1,11 +1,5 @@
 package ec.edu.espe.corebancario.transactions.service;
 
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
-import ec.edu.espe.corebancario.transactions.constants.DomainConstant;
-import ec.edu.espe.corebancario.transactions.enums.TypeTransactionEnum;
 import ec.edu.espe.corebancario.transactions.exception.DocumentNotFoundException;
 import ec.edu.espe.corebancario.transactions.exception.InsertException;
 import ec.edu.espe.corebancario.transactions.model.Transaction;
@@ -20,14 +14,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import static org.mockito.BDDMockito.given;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 
 @Slf4j

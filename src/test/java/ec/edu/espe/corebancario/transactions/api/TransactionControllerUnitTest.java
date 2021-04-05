@@ -1,7 +1,7 @@
-
 package ec.edu.espe.corebancario.transactions.api;
 
 import ec.edu.espe.corebancario.transactions.exception.DocumentNotFoundException;
+import ec.edu.espe.corebancario.transactions.exception.InsertException;
 import ec.edu.espe.corebancario.transactions.model.Transaction;
 import ec.edu.espe.corebancario.transactions.service.TransactionService;
 import java.math.BigDecimal;
@@ -16,11 +16,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.lenient;
+import org.mockito.Mockito;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpClientErrorException;
 
 @ExtendWith(MockitoExtension.class)
 public class TransactionControllerUnitTest {
@@ -53,16 +52,21 @@ public class TransactionControllerUnitTest {
     }
     
     @Test
-    public void givenNullAndLimitThrowDocumentNotFoundException() {
-        String numberAccount = "370000000001";
+    public void givenNullNumberAndLimitThrowDocumentNotFoundException() {
+        String number = null;
         Integer limit = 3;
+        TransactionController controller = new TransactionController(service);
         try {
-            lenient().when(service.listLastTransactions(numberAccount,limit))
-                    .thenThrow(DocumentNotFoundException.class);
+            Mockito.doThrow(DocumentNotFoundException.class)
+                    .when (service)
+                    .listLastTransactions(number,limit);
         } catch (DocumentNotFoundException ex) {
             Logger.getLogger(TransactionControllerUnitTest.class.getName()).log(Level.SEVERE, null, ex);
         }
+        ResponseEntity response = ResponseEntity.notFound().build();
+        Assertions.assertEquals(response, controller.listXlastTransactions(number,limit));   
     }
+    
     
     @Test
     public void givenNumberAccountAndLimitReturnListOfLastTransactionsByType() {
@@ -108,6 +112,25 @@ public class TransactionControllerUnitTest {
         transaction.setBalanceAccount(new BigDecimal("0.0"));
         TransactionController controller = new TransactionController(service);
         ResponseEntity response = ResponseEntity.ok().build();
+        Assertions.assertEquals(response, controller.cardPayment(transaction));
+    }
+    
+    @Test
+    public void givenBadTransactionReturnBadRequest(){
+        Transaction transaction = new Transaction();
+        TransactionController controller = new TransactionController(service);
+        try {
+            Mockito.doThrow(InsertException.class)
+                    .when (service)
+                    .createTrasaction(transaction);
+            Mockito.doThrow(InsertException.class)
+                    .when (service)
+                    .cardPayment(transaction);
+        } catch (InsertException ex) {
+           Logger.getLogger(TransactionControllerUnitTest.class.getName()).log(Level.SEVERE, null, ex); 
+        }
+        ResponseEntity response = ResponseEntity.badRequest().build();
+        Assertions.assertEquals(response, controller.create(transaction));
         Assertions.assertEquals(response, controller.cardPayment(transaction));
     }
 }
