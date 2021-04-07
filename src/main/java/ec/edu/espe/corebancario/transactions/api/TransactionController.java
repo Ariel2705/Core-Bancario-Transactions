@@ -7,6 +7,7 @@ import ec.edu.espe.corebancario.transactions.service.TransactionService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,7 +39,7 @@ public class TransactionController {
             @ApiResponse(code = 404, message = "Transacciones no encontradas.")
     })
     @GetMapping(path = "/listXLastTransactions")
-    public ResponseEntity listXlastTransactions(
+    public ResponseEntity<List<Transaction>> listXlastTransactions(
             @RequestParam String account, 
             @RequestParam(defaultValue = "1", required = false) Integer limit) {
         try {
@@ -56,7 +57,7 @@ public class TransactionController {
             @ApiResponse(code = 404, message = "Transacciones no encontradas.")
     })
     @GetMapping(path = "/listXLastTransactionsByType")
-    public ResponseEntity listXlastTransactionsByType(
+    public ResponseEntity<List<Transaction>> listXlastTransactionsByType(
             @RequestParam(defaultValue = "Retiro") String type,
             @RequestParam String account,
             @RequestParam(defaultValue = "1", required = false) Integer limit) {
@@ -75,7 +76,7 @@ public class TransactionController {
             @ApiResponse(code = 400, message = "Error al crear la transacción.")
     })
     @PostMapping("/create")
-    public ResponseEntity create(@RequestBody Transaction transaction) {
+    public ResponseEntity<Transaction> create(@RequestBody Transaction transaction) {
         try {
             this.service.createTrasaction(transaction);
             return ResponseEntity.ok().build();
@@ -92,7 +93,7 @@ public class TransactionController {
             @ApiResponse(code = 400, message = "Error al crear la transacción.")
     })
     @PostMapping("/cardPayment")
-    public ResponseEntity cardPayment(@RequestBody Transaction transaction) {
+    public ResponseEntity<Transaction> cardPayment(@RequestBody Transaction transaction) {
         try {
             this.service.cardPayment(transaction);
             return ResponseEntity.ok().build();

@@ -86,6 +86,7 @@ public class TransactionService {
                             .header("Content-Type", "Application/JSON")
                             .header("Authorization", authorizationRq.tokenAuthorizate()).body(object).asJson();
                 } else {
+                    log.error("Tipo de transaccion no permitido");
                     throw new InsertException("Transaction", "Intento de transaccion de tipo no existente "
                             + transaction.toString());
                 }
@@ -121,7 +122,6 @@ public class TransactionService {
                         .header("Content-Type", "Application/JSON")
                         .header("Authorization", authorizationRq.tokenAuthorizate())
                         .body(object).asJson();
-                log.info("PASOOOOOOOOOOOOOOO2" + transaction.toString());
             } else {
                 log.error("Intento de pago de tarjeta de credito no existente o inactiva " + transaction.getAccount());
                 throw new InsertException("Transaction", "Tarjeta de credito no existente o inactiva");
@@ -137,13 +137,14 @@ public class TransactionService {
 
     public List<Transaction> listLastTransactions(String account, Integer amount) throws DocumentNotFoundException {
         try {
-            log.info("Listando " + amount + " transferencias de: " + account);
             List<Transaction> transactions
                     = this.transactionRepo.findByAccountOrderByCreationDateDesc(account,
                             PageRequest.of(0, amount));
             if (!transactions.isEmpty()) {
+                log.info("Listando " + amount + " transferencias de: " + account);
                 return transactions;
             } else {
+                log.error("No existen transacciones de la cuenta: " + account);
                 throw new DocumentNotFoundException("Error al listar transacciones");
             }
         } catch (Exception e) {
@@ -155,14 +156,15 @@ public class TransactionService {
             String type,
             Integer amount) throws DocumentNotFoundException {
         try {
-            log.info("Listando " + amount + " transferencias de: " + account + " de tipo " + type);
             List<Transaction> transactions
                     = this.transactionRepo.findByAccountAndTypeOrderByCreationDateDesc(account,
                             type,
                             PageRequest.of(0, amount));
             if (!transactions.isEmpty()) {
+                log.info("Listando " + amount + " transferencias de: " + account + " de tipo " + type);
                 return transactions;
             } else {
+                log.error("No existen transacciones de la cuenta: " + account + " tipo: " + type);
                 throw new DocumentNotFoundException("Error al listar transacciones");
             }
         } catch (Exception e) {
@@ -175,7 +177,6 @@ public class TransactionService {
             HttpResponse<JsonNode> request = Unirest.get(DomainConstant.DOMAINACCOUNT + "/findAccountByNumber/{number}")
                     .header("Authorization", authorizationRq.tokenAuthorizate())
                     .routeParam("number", account).asJson();
-
             if (200 == request.getStatus()
                     && TypeTransactionEnum.DEPOSITO.getDescription().equals(type)
                     && StateAccountEnum.INACTIVO.getEstado().equals(request.getBody().getObject().getString("status"))
